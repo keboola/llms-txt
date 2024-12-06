@@ -1,0 +1,14 @@
+# Ignore copy files
+*copy*
+*Copy*
+*COPY*
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*~ 
