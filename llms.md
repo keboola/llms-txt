@@ -105,6 +105,67 @@ client.files.download(file_id, 'downloaded.csv')
 
 For detailed examples and API reference, visit our [Developer Documentation](https://developers.keboola.com/).
 
+## Python Component Library
+
+Our Python Component library enables developers to build custom Python applications that run in the Keboola environment:
+
+```bash
+pip3 install keboola.component
+```
+
+### Key Features
+
+- **Common Interface Integration**: Seamless handling of Keboola's Common Interface
+- **Configuration Management**: Easy access to component configuration
+- **I/O Operations**: Simplified table and file operations
+- **Error Handling**: Built-in exception handling and logging
+- **State Management**: Support for stateful operations
+- **Sync Actions**: Implementation of configuration validation and testing
+
+### Example Component
+
+```python
+from keboola.component.base import ComponentBase
+from keboola.component import UserException
+
+class MyComponent(ComponentBase):
+    def __init__(self):
+        super().__init__()
+    
+    def run(self):
+        # Get configuration
+        params = self.configuration.parameters
+        
+        # Create output table
+        table = self.create_out_table_definition('results.csv')
+        
+        # Process data
+        with open(table.full_path, 'w') as out_file:
+            # Your data processing logic here
+            pass
+        
+        # Write manifest
+        self.write_manifest(table)
+
+if __name__ == "__main__":
+    try:
+        comp = MyComponent()
+        comp.execute_action()
+    except (UserException, Exception) as exc:
+        logging.exception(exc)
+        exit(1)
+
+### Best Practices
+
+- Use proper error handling with `UserException`
+- Validate configuration parameters
+- Implement incremental processing when possible
+- Write comprehensive tests
+- Clean up temporary files
+- Document configuration requirements
+
+For detailed examples and API reference, visit our [Developer Documentation](https://developers.keboola.com/).
+
 ## Tutorials and Examples
 
 - [Getting Started with Keboola](https://help.keboola.com/tutorials/): Step-by-step tutorials to help new users onboard and utilize the platform effectively.

@@ -1,74 +1,94 @@
-# Keboola Documentation Repository
+# Keboola Documentation for LLMs
 
-This repository serves as the authoritative source of information about Keboola, a cloud-based data operations platform. The content is structured to support various use cases including documentation, content creation, and AI-powered systems.
+This repository contains comprehensive documentation about Keboola, optimized for both human reading and Large Language Model (LLM) consumption. The content focuses on technical details, APIs, client libraries, and integration guides.
 
 ## Repository Structure
 
-### Core Documentation
-- `keboola-overview.md` - Introduction to Keboola and core features
-- `technical-documentation.md` - Technical details, APIs, and integration guides
-- `use-cases.md` - Success stories and industry applications
-- `data-governance.md` - Security, compliance, and governance details
-- `pricing-and-roi.md` - Pricing models and ROI analysis
-- `support-and-community.md` - Support resources and community information
-- `faq.md` - Frequently asked questions
-- `glossary.md` - Key terms and definitions
-- `changelog.md` - Platform updates and changes
-
-### LLM-Optimized Content
-- `llms.txt` / `llms.md` - Concise, LLM-friendly version of Keboola documentation
-- `llms-full.txt` / `llms-full.md` - Comprehensive documentation optimized for LLM consumption
-
-### Model-Specific Variants
-- `llms-perplexity.md` - Documentation optimized for Perplexity AI
-- `llms-gpt-4o.md` - Documentation optimized for GPT-4
-
-These files are specifically formatted for Large Language Models (LLMs) and RAG systems, containing structured information that enhances AI-powered content generation and information retrieval.
-
-## Purpose
-
-This repository is designed to:
-- Serve as a single source of truth for Keboola-related content
-- Support internal Retrieval-Augmented Generation (RAG) systems
-- Provide SEO-optimized content for various platforms
-- Enable consistent content creation across channels
-- Facilitate AI-powered documentation and support systems
+- `llms.md` / `llms.txt` - Concise version of Keboola documentation optimized for quick reference and LLM consumption
+- `llms-full.md` / `llms-full.txt` - Comprehensive documentation with detailed examples, code snippets, and best practices
 
 ## File Formats
 
-- `.md` files are formatted in GitHub-flavored Markdown for web display
+- `.md` files are formatted in GitHub-flavored Markdown for web display and human readability
 - `.txt` files provide plain text versions optimized for LLM processing
-- Both formats maintain consistent content while serving different use cases
-- Model-specific variants contain optimizations for particular LLM platforms
+- Both formats maintain identical content while serving different use cases
+
+## Usage Guide
+
+### For AI Models/Assistants
+
+1. **Direct Copy-Paste**
+   - Copy the content of either `llms.txt` (concise) or `llms-full.txt` (detailed) for optimal LLM processing
+   - Alternatively, use `llms.md` or `llms-full.md` when formatting matters
+   - Paste it into your conversation with an AI assistant
+   - Reference it as context for your Keboola-related questions
+
+2. **RAG Systems**
+   - Use the `.txt` files as primary knowledge base documents in your Retrieval-Augmented Generation system
+   - Use `.md` files when markdown formatting needs to be preserved
+   - Index the content for semantic search
+   - Use as reference documents for AI tools and agents
+
+### For Developers
+
+1. **Quick Reference**
+   - Use `llms.md` for quick lookups of:
+     - API endpoints and usage
+     - Python client examples
+     - Common patterns and best practices
+     - Configuration templates
+
+2. **Detailed Implementation**
+   - Refer to `llms-full.md` for:
+     - Complete code examples
+     - Advanced features and use cases
+     - Comprehensive best practices
+     - Troubleshooting guides
+
+### Content Overview
+
+#### llms.md/txt Contains:
+- Platform overview and key features
+- Basic API usage examples
+- Essential code snippets
+- Core best practices
+- Quick start guides
+
+#### llms-full.md/txt Includes:
+- Detailed API documentation
+- Comprehensive code examples
+- Advanced features and patterns
+- In-depth best practices
+- Common use cases
+- Troubleshooting guides
+- Configuration examples
+
+## Practical Examples
+
+### Using with ChatGPT/Claude
+```
+I'm working on [your task] with Keboola. Here's the documentation for context:
+
+[Paste content of llms.txt or relevant sections from llms-full.txt]
+
+My question is: [your specific question]
+```
+
+### Using in Development
+1. Open the relevant `.md` file in your code editor
+2. Use split-screen view to reference documentation while coding
+3. Copy-paste code examples and modify as needed
+4. Follow best practices and patterns from the documentation
 
 ## Contributing
 
-Please follow our contribution guidelines when updating documentation:
-1. Use clear, concise markdown formatting
-2. Include relevant keywords for SEO
-3. Maintain consistent structure and formatting
-4. Add code examples where applicable
-5. Update the changelog for significant changes
-6. Keep LLM-optimized files in sync with main documentation
-7. Document any model-specific optimizations in variant files
-
-## File Organization
-
-```
-.
-├── README.md
-├── Core Documentation/
-│   └── [core documentation files]
-├── LLM Documentation/
-│   ├── Standard/
-│   │   ├── llms.txt
-│   │   ├── llms.md
-│   │   ├── llms-full.txt
-│   │   └── llms-full.md
-│   └── Model-Specific/
-│       ├── llms-perplexity.md
-│       └── llms-gpt-4o.md
-```
+Feel free to submit pull requests to improve the documentation. Please ensure:
+1. Changes are consistent across both `.md` and `.txt` versions of each file
+2. Code examples are tested and working
+3. Documentation remains clear and well-structured
+4. Examples follow Keboola best practices
+5. Markdown formatting is properly maintained in `.md` files
+6. Plain text versions remain clean and readable
 
 ## License
 

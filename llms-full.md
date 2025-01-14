@@ -201,6 +201,211 @@ except ClientException as e:
    - Monitor storage usage
    - Implement proper logging
 
+### Python Component Library
+
+The Keboola Python Component library provides a robust framework for building Python applications that run in the Keboola Connection environment. It simplifies common tasks related to the Keboola Common Interface, such as configuration handling, I/O operations, logging, and state management.
+
+#### Installation
+
+```bash
+pip3 install keboola.component
+```
+
+#### Core Modules
+
+1. **Interface Module** (`keboola.component.interface`)
+   - Handles core Common Interface tasks
+   - Manages environment initialization
+   - Processes configuration files
+   - Handles data folder operations
+
+2. **DAO Module** (`keboola.component.dao`)
+   - Contains data classes for Common Interface objects
+   - Manages manifest files and metadata
+   - Handles environment variables
+
+3. **Base Module** (`keboola.component.base`)
+   - Provides base classes for building Keboola Components
+   - Implements common functionality and patterns
+
+#### Basic Component Structure
+
+```python
+from keboola.component.base import ComponentBase
+from keboola.component import UserException
+import logging
+
+class Component(ComponentBase):
+    def __init__(self):
+        super().__init__()
+    
+    def run(self):
+        # Validate configuration parameters
+        self.validate_configuration_parameters(['required_parameter'])
+        
+        # Access configuration
+        params = self.configuration.parameters
+        
+        # Create output table
+        table = self.create_out_table_definition('output.csv', 
+                                               incremental=True,
+                                               primary_key=['id'])
+        
+        # Process data and write to output
+        with open(table.full_path, 'w') as out_file:
+            # Your data processing logic here
+            pass
+        
+        # Write table manifest
+        self.write_manifest(table)
+
+if __name__ == "__main__":
+    try:
+        comp = Component()
+        comp.execute_action()
+    except UserException as exc:
+        logging.exception(exc)
+        exit(1)
+    except Exception as exc:
+        logging.exception(exc)
+        exit(2)
+
+#### Advanced Features
+
+1. **Table Schemas**
+```python
+# Define schema in JSON
+{
+    "name": "product",
+    "primary_keys": ["id"],
+    "fields": [
+        {
+            "name": "id",
+            "base_type": "string",
+            "nullable": false
+        },
+        {
+            "name": "name",
+            "base_type": "string",
+            "length": "1000"
+        }
+    ]
+}
+
+# Use schema in component
+class Component(ComponentBase):
+    def run(self):
+        schema = self.get_table_schema_by_name('product')
+        table = self.create_out_table_definition_from_schema(schema)
+        # Process data using schema-defined structure
+```
+
+2. **Sync Actions**
+```python
+from keboola.component.base import ComponentBase, sync_action
+from keboola.component.sync_actions import ValidationResult, MessageType
+
+class Component(ComponentBase):
+    @sync_action('testConnection')
+    def test_connection(self):
+        # Test connection logic
+        connection = self.configuration.parameters.get('connection')
+        if not self.test_connection(connection):
+            raise UserException("Connection failed")
+        
+    @sync_action('validate')
+    def validate_config(self) -> ValidationResult:
+        return ValidationResult("Configuration valid", MessageType.SUCCESS)
+```
+
+3. **State Management**
+```python
+class Component(ComponentBase):
+    def run(self):
+        # Read previous state
+        previous_state = self.get_state_file()
+        last_run = previous_state.get('last_run')
+        
+        # Process data incrementally
+        new_data = self.process_new_data(since=last_run)
+        
+        # Save new state
+        self.write_state_file({
+            "last_run": datetime.now().isoformat(),
+            "processed_records": len(new_data)
+        })
+```
+
+#### Best Practices
+
+1. **Error Handling**
+   - Use `UserException` for user-facing errors
+   - Implement proper logging
+   - Handle configuration validation thoroughly
+   - Manage resources properly
+
+2. **Configuration Management**
+   - Define required parameters explicitly
+   - Validate all inputs
+   - Use configuration defaults wisely
+   - Document parameter requirements
+
+3. **Data Processing**
+   - Implement incremental processing when possible
+   - Use table manifests for metadata
+   - Handle large datasets efficiently
+   - Clean up temporary files
+
+4. **Testing**
+   - Write unit tests for components
+   - Test sync actions separately
+   - Validate configuration scenarios
+   - Test error handling
+
+#### Common Use Cases
+
+1. **Data Extraction**
+```python
+class Extractor(ComponentBase):
+    def run(self):
+        # Create output table
+        table = self.create_out_table_definition('extracted_data.csv')
+        
+        # Extract data
+        data = self.extract_from_source()
+        
+        # Write to CSV
+        with open(table.full_path, 'w') as out_file:
+            writer = csv.DictWriter(out_file, fieldnames=data[0].keys())
+            writer.writeheader()
+            writer.writerows(data)
+        
+        # Write manifest
+        self.write_manifest(table)
+```
+
+2. **Data Transformation**
+```python
+class Transformer(ComponentBase):
+    def run(self):
+        # Read input table
+        input_table = self.get_input_tables()[0]
+        
+        # Create output table
+        output_table = self.create_out_table_definition('transformed.csv')
+        
+        # Transform data
+        with open(input_table.full_path, 'r') as in_file:
+            reader = csv.DictReader(in_file)
+            transformed_data = [self.transform_row(row) for row in reader]
+        
+        # Write transformed data
+        with open(output_table.full_path, 'w') as out_file:
+            writer = csv.DictWriter(out_file, fieldnames=transformed_data[0].keys())
+            writer.writeheader()
+            writer.writerows(transformed_data)
+```
+
 ---
 
 ## Command Line Interface (CLI)
