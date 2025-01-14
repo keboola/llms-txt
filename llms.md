@@ -54,6 +54,57 @@ Keboola offers a suite of APIs to facilitate seamless integration and automation
 - [OAuth Broker API](https://developers.keboola.com/overview/api/oauth-broker/): Manage OAuth authorizations for components.
 - [Orchestrator API](https://developers.keboola.com/overview/api/orchestrator/): Automate and schedule tasks within your project.
 
+## Storage API Python Client
+
+Our official Python client for the Storage API enables seamless interaction with Keboola's data storage:
+
+```bash
+pip3 install keboola.storage.client
+```
+
+### Key Features
+
+- **Bucket Management**: Create, list, and manage storage buckets
+- **Table Operations**: Create, update, delete tables and manage their data
+- **File Handling**: Upload, download, and manage files in storage
+- **Metadata Management**: Work with table and bucket metadata
+- **Error Handling**: Built-in exception handling and validation
+
+### Example Usage
+
+```python
+from keboola.storage.client import Client
+
+# Initialize client
+client = Client(token='your-storage-api-token')
+
+# Work with buckets
+buckets = client.buckets.list()
+new_bucket = client.buckets.create('new-bucket-name', stage='in')
+
+# Work with tables
+tables = client.buckets.list_tables('bucket-id')
+table = client.tables.create_from_file('bucket-id', 'table-name', 'data.csv')
+
+# Load and export data
+client.tables.load(table_id='table-id', file_path='data.csv', is_incremental=True)
+client.tables.export_to_file(table_id='table-id', path_name='export.csv')
+
+# Handle files
+file_id = client.files.upload_file('file.csv', tags=['tag1'])
+client.files.download(file_id, 'downloaded.csv')
+```
+
+### Best Practices
+
+- Store API tokens securely using environment variables
+- Implement proper error handling using `ClientException`
+- Use incremental loads for better performance
+- Validate data before upload
+- Clean up temporary files after processing
+
+For detailed examples and API reference, visit our [Developer Documentation](https://developers.keboola.com/).
+
 ## Tutorials and Examples
 
 - [Getting Started with Keboola](https://help.keboola.com/tutorials/): Step-by-step tutorials to help new users onboard and utilize the platform effectively.

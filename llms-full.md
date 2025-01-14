@@ -88,6 +88,119 @@ curl -X GET https://connection.keboola.com/v2/storage/buckets \
 -H "X-StorageApi-Token: YOUR_STORAGE_API_TOKEN"
 ```
 
+### Storage API Python Client
+
+The Storage API Python Client provides a convenient way to interact with Keboola's Storage API programmatically using Python. Here's how to use it:
+
+#### Installation
+
+```bash
+pip3 install keboola.storage.client
+```
+
+#### Basic Usage
+
+```python
+from keboola.storage.client import Client
+
+# Initialize the client with your Storage API token
+client = Client(token='your-storage-api-token')
+
+# List all buckets
+buckets = client.buckets.list()
+
+# Create a new bucket
+new_bucket = client.buckets.create('new-bucket-name', stage='in', description='My new bucket')
+
+# List tables in a bucket
+tables = client.buckets.list_tables('bucket-id')
+
+# Create a new table from CSV file
+table = client.tables.create_from_file('bucket-id', 'table-name', 'path/to/file.csv')
+
+# Load data into existing table
+client.tables.load(table_id='table-id', file_path='path/to/file.csv', is_incremental=True)
+
+# Export table to CSV
+client.tables.export_to_file(table_id='table-id', path_name='path/to/export.csv')
+```
+
+#### Advanced Features
+
+1. **Working with Table Metadata**
+```python
+# Get table metadata
+table_info = client.tables.detail('table-id')
+
+# Update table metadata
+client.tables.update(
+    table_id='table-id',
+    new_name='new-table-name',
+    new_description='Updated description'
+)
+```
+
+2. **Managing Table Data**
+```python
+# Preview table data
+preview = client.tables.preview('table-id', limit=100)
+
+# Delete rows from table
+client.tables.delete_rows('table-id', where_column='id', where_values=['1', '2', '3'])
+
+# Create table with defined primary key
+client.tables.create(
+    name='my-table',
+    bucket_id='bucket-id',
+    primary_key=['id', 'date'],
+    column_headers=['id', 'date', 'value']
+)
+```
+
+3. **Working with Files**
+```python
+# Upload file to file storage
+file_id = client.files.upload_file('path/to/local/file.csv', tags=['tag1', 'tag2'])
+
+# List files with specific tags
+files = client.files.list(tags=['tag1'])
+
+# Download file from file storage
+client.files.download(file_id, 'path/to/save/file.csv')
+```
+
+4. **Error Handling**
+```python
+from keboola.storage.client import ClientException
+
+try:
+    client.buckets.detail('non-existent-bucket')
+except ClientException as e:
+    print(f"Error occurred: {e}")
+```
+
+#### Best Practices
+
+1. **Token Management**
+   - Store API tokens securely (e.g., environment variables)
+   - Use tokens with minimal required permissions
+   - Rotate tokens periodically
+
+2. **Performance Optimization**
+   - Use incremental loads when possible
+   - Batch operations for multiple files/tables
+   - Implement proper error handling
+
+3. **Data Validation**
+   - Verify data types before upload
+   - Use primary keys when data integrity is crucial
+   - Validate CSV formats before loading
+
+4. **Resource Management**
+   - Clean up temporary files after processing
+   - Monitor storage usage
+   - Implement proper logging
+
 ---
 
 ## Command Line Interface (CLI)
