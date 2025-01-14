@@ -2,7 +2,29 @@
 
 > Keboola is a cloud-based data operations platform that empowers businesses to automate data workflows, manage data integration, and enable advanced data analytics. This document provides a comprehensive guide for both new and experienced users, including setup commands, API access details, and key tutorials.
 
----
+## Table of Contents
+
+1. [Key Features](#key-features)
+2. [Getting Started](#getting-started)
+   - [Setting Up Your Project](#setting-up-your-keboola-project)
+   - [Installation](#installation)
+   - [Authentication](#authentication)
+3. [API Access](#api-access-details)
+   - [Storage API](#storage-api)
+   - [Management API](#management-api)
+   - [Queue API](#queue-api)
+   - [Encryption API](#encryption-api)
+   - [Transformation API](#transformation-api)
+4. [Client Libraries](#client-libraries)
+   - [Storage API Python Client](#storage-api-python-client)
+   - [Python Component Library](#python-component-library)
+5. [Command Line Interface](#command-line-interface-cli)
+6. [Tutorials](#tutorials)
+   - [Basic Workflow Setup](#basic-workflow-setup)
+   - [Advanced Tutorials](#advanced-tutorials)
+7. [Advanced Features](#advanced-features)
+8. [Troubleshooting](#troubleshooting)
+9. [Support Resources](#support-resources)
 
 ## Key Features
 
@@ -13,8 +35,6 @@
 - **Scalability**: Scale effortlessly with cloud infrastructure to meet growing organizational needs.
 - **Collaboration**: Share assets and work collaboratively on data projects to accelerate insights.
 
----
-
 ## Getting Started
 
 ### Setting Up Your Keboola Project
@@ -24,31 +44,37 @@
    - Access the project dashboard after logging in.
 
 2. **Install the CLI**:
-   - Install the Keboola CLI for managing projects locally:
-     ```bash
-     npm install -g @keboola/cli
-     ```
+   ```bash
+   npm install -g @keboola/cli
+   ```
 
-3. **Initialize a Local Directory**:
-   - Create and initialize a directory for your project:
-     ```bash
-     mkdir my-kbc-project
-     cd my-kbc-project
-     kbc init
-     ```
-   - Provide the API host and token when prompted.
+3. **Initialize Your Project**:
+   ```bash
+   mkdir my-kbc-project
+   cd my-kbc-project
+   kbc init
+   ```
 
-4. **Sync Your Project**:
-   - Pull project configurations into your local directory:
-     ```bash
-     kbc sync pull
-     ```
+4. **Authentication**:
+   ```bash
+   # Set up your Storage API token
+   export KBC_STORAGE_TOKEN="your-storage-api-token"
+   
+   # Or use a configuration file
+   echo "KBC_STORAGE_TOKEN=your-storage-api-token" > .env
+   ```
 
-5. **Push Changes Back to Keboola**:
-   - After making changes locally, push them to the project:
-     ```bash
-     kbc sync push
-     ```
+### Basic Data Flow
+```mermaid
+graph TD
+    A[Data Source] -->|Extract| B[Storage]
+    B -->|Transform| C[Processing]
+    C -->|Load| D[Storage]
+    D -->|Write| E[Destination]
+    F[Orchestrator] -->|Schedule & Monitor| A
+    F -->|Schedule & Monitor| C
+    F -->|Schedule & Monitor| E
+```
 
 ---
 
@@ -70,15 +96,203 @@
 
 ## API Access Details
 
-Keboola offers several APIs for managing and automating tasks:
+Keboola provides several APIs for managing and automating tasks. Each API serves a specific purpose and requires appropriate authentication.
 
-| API                     | Description                                                                 |
-|--------------------------|-----------------------------------------------------------------------------|
-| Storage API             | Manage tables, files, and buckets in Keboola Storage.                      |
-| Management API          | Oversee projects, users, notifications, and features.                      |
-| Queue API               | Run components and manage jobs asynchronously.                             |
-| Encryption API          | Handle encryption tasks securely.                                          |
-| Transformation API      | Execute SQL/Python/R transformations programmatically.                     |
+### Storage API
+
+The Storage API is the core API for managing data in Keboola.
+
+#### Key Features
+- Bucket and table management
+- File uploads and downloads
+- Data import and export
+- Metadata management
+
+#### Common Endpoints
+```bash
+# List buckets
+GET /v2/storage/buckets
+
+# Create table
+POST /v2/storage/buckets/{bucketId}/tables
+
+# Import data
+POST /v2/storage/tables/{tableId}/import
+
+# Export data
+GET /v2/storage/tables/{tableId}/export
+```
+
+#### Authentication
+```bash
+curl -H "X-StorageApi-Token: your-token" \
+     https://connection.keboola.com/v2/storage/buckets
+```
+
+### Management API
+
+The Management API handles project and user management tasks.
+
+#### Key Features
+- Project administration
+- User management
+- Feature configuration
+- Billing and usage monitoring
+
+#### Common Endpoints
+```bash
+# List projects
+GET /v2/manage/projects
+
+# Manage users
+POST /v2/manage/projects/{projectId}/users
+
+# Update features
+PATCH /v2/manage/projects/{projectId}/features
+```
+
+### Queue API
+
+The Queue API manages asynchronous job execution.
+
+#### Key Features
+- Job scheduling
+- Status monitoring
+- Result retrieval
+- Error handling
+
+#### Common Endpoints
+```bash
+# Create job
+POST /v2/jobs
+
+# Get job status
+GET /v2/jobs/{jobId}
+
+# List jobs
+GET /v2/jobs?limit=10&offset=0
+```
+
+### Encryption API
+
+The Encryption API handles secure data encryption tasks.
+
+#### Key Features
+- Key management
+- Data encryption
+- Secure configuration storage
+- Credential management
+
+#### Common Endpoints
+```bash
+# Encrypt value
+POST /v2/encrypt
+
+# Decrypt value
+POST /v2/decrypt
+```
+
+### Transformation API
+
+The Transformation API manages data transformation processes.
+
+#### Key Features
+- SQL transformations
+- Python/R script execution
+- Transformation versioning
+- Phase management
+
+#### Common Endpoints
+```bash
+# Create transformation
+POST /v2/transformations
+
+# Run transformation
+POST /v2/transformations/{transformationId}/run
+
+# Get transformation logs
+GET /v2/transformations/{transformationId}/logs
+```
+
+### API Best Practices
+
+1. **Rate Limiting**
+   - Implement exponential backoff
+   - Cache responses when possible
+   - Use batch operations
+
+2. **Error Handling**
+   - Handle HTTP status codes
+   - Implement retry logic
+   - Log API responses
+
+3. **Security**
+   - Store tokens securely
+   - Use HTTPS only
+   - Rotate tokens regularly
+
+4. **Performance**
+   - Use incremental processing
+   - Optimize request frequency
+   - Monitor API usage
+
+### Example: Complete API Workflow
+
+```python
+import requests
+from typing import Dict, List
+
+class KeboolaAPI:
+    def __init__(self, token: str, base_url: str = "https://connection.keboola.com/v2"):
+        self.token = token
+        self.base_url = base_url
+        self.headers = {
+            "X-StorageApi-Token": token,
+            "Content-Type": "application/json"
+        }
+    
+    def create_bucket(self, name: str, stage: str = "in") -> Dict:
+        """Create a new bucket."""
+        url = f"{self.base_url}/storage/buckets"
+        data = {
+            "name": name,
+            "stage": stage
+        }
+        response = requests.post(url, headers=self.headers, json=data)
+        response.raise_for_status()
+        return response.json()
+    
+    def upload_table(self, bucket_id: str, name: str, file_path: str) -> Dict:
+        """Upload a table from CSV file."""
+        url = f"{self.base_url}/storage/buckets/{bucket_id}/tables-async"
+        with open(file_path, 'rb') as file:
+            files = {
+                'data': file,
+                'name': (None, name),
+                'primaryKey[]': (None, 'id')
+            }
+            response = requests.post(url, headers={"X-StorageApi-Token": self.token}, files=files)
+            response.raise_for_status()
+            return response.json()
+    
+    def run_transformation(self, config: Dict) -> Dict:
+        """Run a transformation job."""
+        url = f"{self.base_url}/transformations/run"
+        response = requests.post(url, headers=self.headers, json=config)
+        response.raise_for_status()
+        return response.json()
+    
+    def monitor_job(self, job_id: str) -> Dict:
+        """Monitor job status."""
+        url = f"{self.base_url}/jobs/{job_id}"
+        while True:
+            response = requests.get(url, headers=self.headers)
+            response.raise_for_status()
+            status = response.json()
+            if status['status'] in ['success', 'error']:
+                return status
+            time.sleep(5)
+```
 
 ### Example: Using the Storage API with cURL
 
@@ -458,6 +672,153 @@ The CLI allows advanced users to manage projects efficiently:
 - **Reverse ETL**: Push transformed data back into operational systems like Salesforce or HubSpot.
 - **Data Catalog**: Discover and govern datasets across projects.
 - **AI Assistant**: Accelerate workflows with AI-driven suggestions for transformations.
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+#### Authentication Errors
+```python
+from keboola.component import UserException
+
+try:
+    client = Client(token='invalid-token')
+except Exception as e:
+    raise UserException(f"Authentication failed: {str(e)}")
+```
+
+**Solution**:
+1. Verify your token is valid and not expired
+2. Check if token has required permissions
+3. Ensure token is properly set in environment variables
+
+#### Connection Issues
+```python
+try:
+    response = client.tables.list()
+except ConnectionError as e:
+    raise UserException(f"Connection failed: {str(e)}")
+except Exception as e:
+    raise UserException(f"Unexpected error: {str(e)}")
+```
+
+**Solution**:
+1. Check your network connection
+2. Verify API endpoint is accessible
+3. Check for any firewall restrictions
+
+#### Data Processing Errors
+
+<details>
+<summary>Memory Issues</summary>
+
+When processing large datasets, you might encounter memory issues. Here's how to handle them:
+
+1. Use streaming processing:
+```python
+def process_large_file(input_path, output_path):
+    with open(input_path, 'r') as infile, open(output_path, 'w') as outfile:
+        for line in infile:
+            processed_line = process_line(line)
+            outfile.write(processed_line)
+```
+
+2. Implement batch processing:
+```python
+def process_in_batches(table_id, batch_size=1000):
+    offset = 0
+    while True:
+        batch = client.tables.preview(table_id, limit=batch_size, offset=offset)
+        if not batch:
+            break
+        process_batch(batch)
+        offset += batch_size
+```
+</details>
+
+<details>
+<summary>Timeout Issues</summary>
+
+For long-running operations:
+
+1. Use incremental processing
+2. Implement proper retry logic
+3. Set appropriate timeout values
+
+```python
+from tenacity import retry, stop_after_attempt, wait_exponential
+
+@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+def reliable_api_call():
+    try:
+        return client.tables.list()
+    except Exception as e:
+        print(f"Attempt failed: {e}")
+        raise
+```
+</details>
+
+### Error Handling Best Practices
+
+1. **Use Proper Exception Types**
+```python
+from keboola.component import UserException
+
+def validate_input(params):
+    if 'input_table' not in params:
+        raise UserException('Input table not specified')
+    if 'output_table' not in params:
+        raise UserException('Output table not specified')
+```
+
+2. **Implement Logging**
+```python
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+try:
+    result = process_data()
+    logger.info(f"Processing completed: {result}")
+except Exception as e:
+    logger.error(f"Processing failed: {str(e)}")
+    raise
+```
+
+3. **Handle Resource Cleanup**
+```python
+class DataProcessor:
+    def __init__(self):
+        self.temp_files = []
+
+    def cleanup(self):
+        for file in self.temp_files:
+            try:
+                os.remove(file)
+                logger.info(f"Cleaned up temporary file: {file}")
+            except Exception as e:
+                logger.warning(f"Failed to clean up {file}: {str(e)}")
+
+    def process(self):
+        try:
+            # Processing logic
+            pass
+        finally:
+            self.cleanup()
+```
+
+### Common Error Messages
+
+| Error Message | Possible Cause | Solution |
+|--------------|----------------|----------|
+| "Storage API token not found" | Environment variable not set | Set `KBC_STORAGE_TOKEN` environment variable |
+| "Bucket not found" | Invalid bucket ID or permissions | Check bucket ID and token permissions |
+| "Table not found" | Invalid table ID or permissions | Verify table ID and token permissions |
+| "Invalid data format" | Malformed CSV or JSON | Validate input data format |
+| "Quota exceeded" | Storage or API limits reached | Check usage limits and optimize requests |
 
 ---
 
