@@ -56,54 +56,79 @@ Keboola offers a suite of APIs to facilitate seamless integration and automation
 
 ## Storage API Python Client
 
-Our official Python client for the Storage API enables seamless interaction with Keboola's data storage:
+The Storage API Python Client (`kbcstorage`) provides client methods to interact with Keboola Connection Storage API. This API client enables you to get data from KBC and store data in KBC, with comprehensive support for working with buckets, tables, and workspaces.
+
+### Installation
 
 ```bash
-pip3 install keboola.storage.client
+pip3 install kbcstorage
 ```
 
-### Key Features
+Or install directly from GitHub:
 
-- **Bucket Management**: Create, list, and manage storage buckets
-- **Table Operations**: Create, update, delete tables and manage their data
-- **File Handling**: Upload, download, and manage files in storage
-- **Metadata Management**: Work with table and bucket metadata
-- **Error Handling**: Built-in exception handling and validation
+```bash
+pip3 install git+https://github.com/keboola/sapi-python-client.git
+```
 
-### Example Usage
+### Client Class Usage
 
 ```python
-from keboola.storage.client import Client
+from kbcstorage.client import Client
 
-# Initialize client
-client = Client(token='your-storage-api-token')
+client = Client('https://connection.keboola.com', 'your-token')
 
-# Work with buckets
-buckets = client.buckets.list()
-new_bucket = client.buckets.create('new-bucket-name', stage='in')
+# Get table data into local file
+client.tables.export_to_file(table_id='in.c-demo.some-table', path_name='/data/')
 
-# Work with tables
-tables = client.buckets.list_tables('bucket-id')
-table = client.tables.create_from_file('bucket-id', 'table-name', 'data.csv')
+# Save data
+client.tables.create(name='some-table-2', bucket_id='in.c-demo', file_path='/data/some-table')
 
-# Load and export data
-client.tables.load(table_id='table-id', file_path='data.csv', is_incremental=True)
-client.tables.export_to_file(table_id='table-id', path_name='export.csv')
+# List buckets
+client.buckets.list()
 
-# Handle files
-file_id = client.files.upload_file('file.csv', tags=['tag1'])
-client.files.download(file_id, 'downloaded.csv')
+# List bucket tables
+client.buckets.list_tables('in.c-demo')
+
+# Get table info
+client.tables.detail('in.c-demo.some-table')
+```
+
+### Endpoint Classes Usage
+
+You can also use the endpoint classes directly:
+
+```python
+from kbcstorage.tables import Tables
+from kbcstorage.buckets import Buckets
+
+# Initialize Tables endpoint
+tables = Tables('https://connection.keboola.com', 'your-token')
+
+# Get table data into local file
+tables.export_to_file(table_id='in.c-demo.some-table', path_name='/data/')
+
+# Save data
+tables.create(name='some-table-2', bucket_id='in.c-demo', file_path='/data/some-table')
+
+# Initialize Buckets endpoint
+buckets = Buckets('https://connection.keboola.com', 'your-token')
+
+# List buckets
+buckets.list()
+
+# List bucket tables
+buckets.list_tables('in.c-demo')
+
+# Get table info
+tables.detail('in.c-demo.some-table')
 ```
 
 ### Best Practices
 
 - Store API tokens securely using environment variables
-- Implement proper error handling using `ClientException`
-- Use incremental loads for better performance
-- Validate data before upload
+- Implement proper error handling
+- Use appropriate endpoint classes for specific operations
 - Clean up temporary files after processing
-
-For detailed examples and API reference, visit our [Developer Documentation](https://developers.keboola.com/).
 
 ## Python Component Library
 

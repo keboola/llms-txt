@@ -66,3 +66,79 @@ Keboola offers a suite of APIs to facilitate seamless integration and automation
 - Contact our support team for personalized assistance and guidance.
 
 Experience the power of Keboola and transform your data operations today!
+
+## Storage API Python Client
+
+The Storage API Python Client (`kbcstorage`) provides client methods to interact with Keboola Connection Storage API. This API client enables you to get data from KBC and store data in KBC, with comprehensive support for working with buckets, tables, and workspaces.
+
+### Installation
+
+```bash
+pip3 install kbcstorage
+```
+
+Or install directly from GitHub:
+
+```bash
+pip3 install git+https://github.com/keboola/sapi-python-client.git
+```
+
+### Client Class Usage
+
+```python
+from kbcstorage.client import Client
+
+client = Client('https://connection.keboola.com', 'your-token')
+
+# Get table data into local file
+client.tables.export_to_file(table_id='in.c-demo.some-table', path_name='/data/')
+
+# Save data
+client.tables.create(name='some-table-2', bucket_id='in.c-demo', file_path='/data/some-table')
+
+# List buckets
+client.buckets.list()
+
+# List bucket tables
+client.buckets.list_tables('in.c-demo')
+
+# Get table info
+client.tables.detail('in.c-demo.some-table')
+```
+
+### Endpoint Classes Usage
+
+You can also use the endpoint classes directly:
+
+```python
+from kbcstorage.tables import Tables
+from kbcstorage.buckets import Buckets
+
+# Initialize Tables endpoint
+tables = Tables('https://connection.keboola.com', 'your-token')
+
+# Get table data into local file
+tables.export_to_file(table_id='in.c-demo.some-table', path_name='/data/')
+
+# Save data
+tables.create(name='some-table-2', bucket_id='in.c-demo', file_path='/data/some-table')
+
+# Initialize Buckets endpoint
+buckets = Buckets('https://connection.keboola.com', 'your-token')
+
+# List buckets
+buckets.list()
+
+# List bucket tables
+buckets.list_tables('in.c-demo')
+
+# Get table info
+tables.detail('in.c-demo.some-table')
+```
+
+### Best Practices
+
+- Store API tokens securely using environment variables
+- Implement proper error handling
+- Use appropriate endpoint classes for specific operations
+- Clean up temporary files after processing

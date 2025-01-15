@@ -304,93 +304,71 @@ curl -X GET https://connection.keboola.com/v2/storage/buckets \
 
 ### Storage API Python Client
 
-The Storage API Python Client provides a convenient way to interact with Keboola's Storage API programmatically using Python. Here's how to use it:
+The Storage API Python Client (`kbcstorage`) provides client methods to interact with Keboola Connection Storage API. This API client enables you to get data from KBC and store data in KBC, with comprehensive support for working with buckets, tables, and workspaces.
 
 #### Installation
 
 ```bash
-pip3 install keboola.storage.client
+pip3 install kbcstorage
 ```
 
-#### Basic Usage
+Or install directly from GitHub:
 
-```python
-from keboola.storage.client import Client
-
-# Initialize the client with your Storage API token
-client = Client(token='your-storage-api-token')
-
-# List all buckets
-buckets = client.buckets.list()
-
-# Create a new bucket
-new_bucket = client.buckets.create('new-bucket-name', stage='in', description='My new bucket')
-
-# List tables in a bucket
-tables = client.buckets.list_tables('bucket-id')
-
-# Create a new table from CSV file
-table = client.tables.create_from_file('bucket-id', 'table-name', 'path/to/file.csv')
-
-# Load data into existing table
-client.tables.load(table_id='table-id', file_path='path/to/file.csv', is_incremental=True)
-
-# Export table to CSV
-client.tables.export_to_file(table_id='table-id', path_name='path/to/export.csv')
+```bash
+pip3 install git+https://github.com/keboola/sapi-python-client.git
 ```
 
-#### Advanced Features
+#### Client Class Usage
 
-1. **Working with Table Metadata**
 ```python
-# Get table metadata
-table_info = client.tables.detail('table-id')
+from kbcstorage.client import Client
 
-# Update table metadata
-client.tables.update(
-    table_id='table-id',
-    new_name='new-table-name',
-    new_description='Updated description'
-)
+client = Client('https://connection.keboola.com', 'your-token')
+
+# Get table data into local file
+client.tables.export_to_file(table_id='in.c-demo.some-table', path_name='/data/')
+
+# Save data
+client.tables.create(name='some-table-2', bucket_id='in.c-demo', file_path='/data/some-table')
+
+# List buckets
+client.buckets.list()
+
+# List bucket tables
+client.buckets.list_tables('in.c-demo')
+
+# Get table info
+client.tables.detail('in.c-demo.some-table')
 ```
 
-2. **Managing Table Data**
+#### Endpoint Classes Usage
+
+You can also use the endpoint classes directly:
+
 ```python
-# Preview table data
-preview = client.tables.preview('table-id', limit=100)
+from kbcstorage.tables import Tables
+from kbcstorage.buckets import Buckets
 
-# Delete rows from table
-client.tables.delete_rows('table-id', where_column='id', where_values=['1', '2', '3'])
+# Initialize Tables endpoint
+tables = Tables('https://connection.keboola.com', 'your-token')
 
-# Create table with defined primary key
-client.tables.create(
-    name='my-table',
-    bucket_id='bucket-id',
-    primary_key=['id', 'date'],
-    column_headers=['id', 'date', 'value']
-)
-```
+# Get table data into local file
+tables.export_to_file(table_id='in.c-demo.some-table', path_name='/data/')
 
-3. **Working with Files**
-```python
-# Upload file to file storage
-file_id = client.files.upload_file('path/to/local/file.csv', tags=['tag1', 'tag2'])
+# Save data
+tables.create(name='some-table-2', bucket_id='in.c-demo', file_path='/data/some-table')
 
-# List files with specific tags
-files = client.files.list(tags=['tag1'])
+# Initialize Buckets endpoint
+buckets = Buckets('https://connection.keboola.com', 'your-token')
 
-# Download file from file storage
-client.files.download(file_id, 'path/to/save/file.csv')
-```
+# List buckets
+buckets.list()
 
-4. **Error Handling**
-```python
-from keboola.storage.client import ClientException
+# List bucket tables
+buckets.list_tables('in.c-demo')
 
-try:
-    client.buckets.detail('non-existent-bucket')
-except ClientException as e:
-    print(f"Error occurred: {e}")
+# Get table info
+tables.detail('in.c-demo.some-table')
 ```
 
 #### Best Practices
@@ -400,17 +378,12 @@ except ClientException as e:
    - Use tokens with minimal required permissions
    - Rotate tokens periodically
 
-2. **Performance Optimization**
-   - Use incremental loads when possible
-   - Batch operations for multiple files/tables
-   - Implement proper error handling
+2. **Error Handling**
+   - Implement proper try-catch blocks
+   - Handle API-specific exceptions
+   - Log errors appropriately
 
-3. **Data Validation**
-   - Verify data types before upload
-   - Use primary keys when data integrity is crucial
-   - Validate CSV formats before loading
-
-4. **Resource Management**
+3. **Resource Management**
    - Clean up temporary files after processing
    - Monitor storage usage
    - Implement proper logging
